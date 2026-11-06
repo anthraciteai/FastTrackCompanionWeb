@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "ollama": "docker compose -f ../docker-compose.yml up -d"
+    "ollama": "docker compose up -d"
   },
   "dependencies": {
     "react": "^19.3.1",

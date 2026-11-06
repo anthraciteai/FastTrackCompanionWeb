@@ -1,0 +1,42 @@
+# Example local LLM backend for the FastTrack companion web app.
+#
+# The dev server proxies /ollama -> http://127.0.0.1:11434 (see vite.config.ts), so the web app
+# can call a locally running Ollama. This compose file is a convenience: it starts Ollama and
+# pre-pulls a small model. Nothing here is secret — tweak the model/ports to taste.
+#
+#   docker compose up -d        # or: npm run ollama
+#   docker compose down         # stop
+#
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: fasttrack-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434
+    restart: unless-stopped
+    # Uncomment to use an NVIDIA GPU (requires the NVIDIA Container Toolkit):
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+  # One-shot: pulls the model once Ollama is up, then exits. Change the model as needed.
+  ollama-pull:
+    image: ollama/ollama:latest
+    container_name: fasttrack-ollama-pull
+    depends_on:
+      - ollama
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    entrypoint: ["ollama", "pull", "llama3.2:1b"]
+    restart: "no"
+
+volumes:
+  ollama:
